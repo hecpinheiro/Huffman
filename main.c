@@ -2,20 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct no no;
-typedef struct filaPrioridade filaP;
+typedef struct node node;
+typedef struct priorityQueue priorityQueue;
 
-struct no
+struct node
 {
-	unsigned char item;
-	int frequencia;
-	no *proximo;
+	unsigned char c;
+	int frequency;
+	node *next;
+	node *left;
+	node *right;
 };
 
-struct filaPrioridade
+struct priorityQueue
 {
-	no *cabeca;
+	node *head;
 };
+
+no *criarNo(char unsigned item, int frequencia)
+{
+	no *novo = (no*)malloc(sizeof(no));
+	novo->item = item;
+	novo->frequencia = frequencia;
+	novo->esquerda = NULL;
+	novo->direita = NULL;
+	return novo;
+}
 
 int filaVazia(filaP *q)
 {
@@ -32,11 +44,9 @@ filaP *criarfilaP(void)
 
 void inserirfilaP(filaP *q, char unsigned item, int frequencia)
 {
-	no *novo = (no*)malloc(sizeof(no));
-	novo->item = item;
-	novo->frequencia = frequencia;
+	no *novo = criarNo(item, frequencia);
 
-	if(filaVazia(q) || frequencia > q->cabeca->frequencia)
+	if(filaVazia(q) || frequencia < q->cabeca->frequencia)
 	{
 		novo->proximo = q->cabeca;
 		q->cabeca = novo;
@@ -45,12 +55,27 @@ void inserirfilaP(filaP *q, char unsigned item, int frequencia)
 	else
 	{
 		no *atual = q->cabeca;
-		while((atual->proximo != NULL) && (atual->proximo->frequencia > frequencia))
+		while((atual->proximo != NULL) && (atual->proximo->frequencia < frequencia))
 		{
 			atual = atual->proximo;
 		}
 		novo->proximo = atual->proximo;
 		atual->proximo = novo;
+	}
+}
+
+no *removerfilaP(filaP *q)
+{
+	if(filaVazia(q))
+	{
+		printf("Fila vazia\n");
+	}
+	else
+	{	
+		no *novo = q->cabeca;
+		q->cabeca = q->cabeca->proximo;
+		novo->proximo = NULL;
+		return novo;
 	}
 }
 
@@ -67,16 +92,15 @@ int comprimir(FILE *arquivo)
 {
 	unsigned char c;
 	unsigned int i;
-	int frequencia[126] = {0};
+	int frequencia[256] = {0};
 	filaP *q  = criarfilaP();
 	
 	while((fscanf(arquivo,"%c",&c)) != EOF)
 	{
 		frequencia[c]++;
-		//printf("%c",c);
 	}
 
-	for(i = 0; i < 126; i++)
+	for(i = 0; i < 256; i++)
 	{
 		if(frequencia[i])
 		{
