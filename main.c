@@ -2,15 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main()
+int comprimir(FILE *arquivo)
 {
-	FILE *arquivo;
-	unsigned int c;
-
-	arquivo = fopen("teste.txt","rb");
-
-	while((c = fgetc(arquivo)) != EOF)
+	unsigned char c;
+	//Leitura do arquivo
+	while((fscanf(arquivo,"%c",&c)) != EOF)
 	{
 		printf("%c",c);
 	}
+}
+
+int main()
+{
+	FILE *arquivo;
+	arquivo = fopen("teste.txt","rb");
+	comprimir(arquivo);
+	fclose(arquivo);
 }
