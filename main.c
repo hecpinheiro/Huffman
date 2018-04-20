@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef no no;
-typedef filaPrioridade filaP;
+typedef struct no no;
+typedef struct filaPrioridade filaP;
 
 struct no
 {
@@ -23,11 +23,11 @@ int filaVazia(filaP *q)
 	else return 0;
 }
 
-filaP *criarfilaPrioridade(void)
+filaP *criarfilaP(void)
 {
-	filaP *f = (filaP*)malloc(sizeof(filaP));
-	f->cabeca = NULL;
-	return f;
+	filaP *q = (filaP*)malloc(sizeof(filaP));
+	q->cabeca = NULL;
+	return q;
 }
 
 void inserirfilaP(filaP *q, char unsigned item, int frequencia)
@@ -44,22 +44,47 @@ void inserirfilaP(filaP *q, char unsigned item, int frequencia)
 
 	else
 	{
-		//Procurar a posição e add
+		no *atual = q->cabeca;
+		while((atual->proximo != NULL) && (atual->proximo->frequencia > frequencia))
+		{
+			atual = atual->proximo;
+		}
+		novo->proximo = atual->proximo;
+		atual->proximo = novo;
+	}
+}
+
+void imprimefilaP(filaP *q)
+{
+	no *auxiliar;
+	for(auxiliar = q->cabeca; auxiliar != NULL; auxiliar = auxiliar->proximo)
+	{
+		printf("%c|%d\n",auxiliar->item,auxiliar->frequencia);
 	}
 }
 
 int comprimir(FILE *arquivo)
 {
 	unsigned char c;
+	unsigned int i;
 	int frequencia[126] = {0};
+	filaP *q  = criarfilaP();
 	
 	while((fscanf(arquivo,"%c",&c)) != EOF)
 	{
 		frequencia[c]++;
-		//Inserir fila
-		//Se item ==, então atualizar frequencia.
-		printf("%c",c);
+		//printf("%c",c);
 	}
+
+	for(i = 0; i < 126; i++)
+	{
+		if(frequencia[i])
+		{
+			inserirfilaP(q, i, frequencia[i]);
+		}
+	}
+
+	imprimefilaP(q);
 }
 
 int main()
