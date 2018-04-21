@@ -19,102 +19,109 @@ struct priorityQueue
 	node *head;
 };
 
-no *criarNo(char unsigned item, int frequencia)
+node *createNode(char unsigned c, int frequency)
 {
-	no *novo = (no*)malloc(sizeof(no));
-	novo->item = item;
-	novo->frequencia = frequencia;
-	novo->esquerda = NULL;
-	novo->direita = NULL;
-	return novo;
+	node *new = (node*)malloc(sizeof(node));
+	new->c = c;
+	new->frequency = frequency;
+	new->left = NULL;
+	new->right = NULL;
+	return new;
 }
 
-int filaVazia(filaP *q)
+int is_empty(priorityQueue *q)
 {
-	if(q->cabeca == NULL) return 1;
+	if(q->head == NULL) return 1;
 	else return 0;
 }
 
-filaP *criarfilaP(void)
+priorityQueue *createQueue(void)
 {
-	filaP *q = (filaP*)malloc(sizeof(filaP));
-	q->cabeca = NULL;
+	priorityQueue *q = (priorityQueue*)malloc(sizeof(priorityQueue));
+	q->head = NULL;
 	return q;
 }
 
-void inserirfilaP(filaP *q, char unsigned item, int frequencia)
+void queue(priorityQueue *q, char unsigned c, int frequency)
 {
-	no *novo = criarNo(item, frequencia);
+	node *new = createNode(c, frequency);
 
-	if(filaVazia(q) || frequencia < q->cabeca->frequencia)
+	if(is_empty(q) || frequency < q->head->frequency)
 	{
-		novo->proximo = q->cabeca;
-		q->cabeca = novo;
+		new->next = q->head;
+		q->head = new;
 	}
 
 	else
 	{
-		no *atual = q->cabeca;
-		while((atual->proximo != NULL) && (atual->proximo->frequencia < frequencia))
+		node *current = q->head;
+		while((current->next != NULL) && (current->next->frequency < frequency))
 		{
-			atual = atual->proximo;
+			current = current->next;
 		}
-		novo->proximo = atual->proximo;
-		atual->proximo = novo;
+		new->next = current->next;
+		current->next = new;
 	}
 }
 
-no *removerfilaP(filaP *q)
+node *dequeue(priorityQueue *q)
 {
-	if(filaVazia(q))
+	if(is_empty(q))
 	{
-		printf("Fila vazia\n");
+		printf("Queue is empty\n");
 	}
 	else
 	{	
-		no *novo = q->cabeca;
-		q->cabeca = q->cabeca->proximo;
-		novo->proximo = NULL;
-		return novo;
+		node *new = q->head;
+		q->head = q->head->next;
+		new->next = NULL;
+		return new;
 	}
 }
 
-void imprimefilaP(filaP *q)
+void printQueue(priorityQueue *q)
 {
-	no *auxiliar;
-	for(auxiliar = q->cabeca; auxiliar != NULL; auxiliar = auxiliar->proximo)
+	node *aux;
+	for(aux = q->head; aux != NULL; aux = aux->next)
 	{
-		printf("%c|%d\n",auxiliar->item,auxiliar->frequencia);
+		printf("%c|%d\n",aux->c,aux->frequency);
 	}
 }
 
-int comprimir(FILE *arquivo)
+void getByteFrequency(FILE *file, int *frequency)
+{
+
+	while((fscanf(file,"%c",&c)) != EOF)
+	{
+		frequency[c]++;
+	}
+
+}
+
+int compress(FILE *file)
 {
 	unsigned char c;
 	unsigned int i;
-	int frequencia[256] = {0};
-	filaP *q  = criarfilaP();
-	
-	while((fscanf(arquivo,"%c",&c)) != EOF)
-	{
-		frequencia[c]++;
-	}
+	int frequency[256] = {0};
+	priorityQueue *q  = createQueue();
 
+	getByteFrequency(file, frequency);
+	
 	for(i = 0; i < 256; i++)
 	{
-		if(frequencia[i])
+		if(frequency[i])
 		{
-			inserirfilaP(q, i, frequencia[i]);
+			queue(q, i, frequency[i]);
 		}
 	}
 
-	imprimefilaP(q);
+	printQueue(q);
 }
 
 int main()
 {
-	FILE *arquivo;
-	arquivo = fopen("teste.txt","rb");
-	comprimir(arquivo);
-	fclose(arquivo);
+	FILE *file;
+	file = fopen("teste.txt","rb");
+	compress(file);
+	fclose(file);	
 }	
