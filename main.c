@@ -90,6 +90,7 @@ void printQueue(priorityQueue *q)
 
 void getByteFrequency(FILE *file, int *frequency)
 {
+	unsigned char c;
 
 	while((fscanf(file,"%c",&c)) != EOF)
 	{
@@ -98,15 +99,10 @@ void getByteFrequency(FILE *file, int *frequency)
 
 }
 
-int compress(FILE *file)
+void addToQueue(priorityQueue *q, int *frequency)
 {
-	unsigned char c;
 	unsigned int i;
-	int frequency[256] = {0};
-	priorityQueue *q  = createQueue();
 
-	getByteFrequency(file, frequency);
-	
 	for(i = 0; i < 256; i++)
 	{
 		if(frequency[i])
@@ -114,7 +110,15 @@ int compress(FILE *file)
 			queue(q, i, frequency[i]);
 		}
 	}
+}
 
+int compress(FILE *file)
+{
+	int frequency[256] = {0};
+	priorityQueue *q  = createQueue();
+
+	getByteFrequency(file, frequency);
+	addToQueue(q,frequency);
 	printQueue(q);
 }
 
