@@ -19,6 +19,28 @@ struct priorityQueue
 	node *head;
 };
 
+
+// DEBUG
+void printQueue(priorityQueue *q)
+{
+	node *aux;
+	for(aux = q->head; aux != NULL; aux = aux->next)
+	{
+		printf("%c|%d\n",aux->c,aux->frequency);
+	}
+}
+
+void print_pre_order(node *tree)
+{
+	if (tree != NULL) {
+		printf("%c|%d\n", tree->c,tree->frequency);
+		print_pre_order(tree->left);
+		print_pre_order(tree->right);
+	}
+}
+
+//END
+
 node *createNode(char unsigned c, int frequency)
 {
 	node *new = (node*)malloc(sizeof(node));
@@ -64,7 +86,27 @@ void queue(priorityQueue *q, char unsigned c, int frequency)
 	}
 }
 
-node *dequeue(priorityQueue *q)
+void queueParent(priorityQueue *q, node *new)
+{
+	if(is_empty(q) || new->frequency < q->head->frequency)
+	{
+		new->next = q->head;
+		q->head = new;
+	}
+
+	else
+	{
+		node *current = q->head;
+		while((current->next != NULL) && (current->next->frequency < new->frequency))
+		{
+			current = current->next;
+		}
+		new->next = current->next;
+		current->next = new;
+	}
+}
+
+void dequeue(priorityQueue *q)
 {
 	if(is_empty(q))
 	{
@@ -75,16 +117,6 @@ node *dequeue(priorityQueue *q)
 		node *new = q->head;
 		q->head = q->head->next;
 		new->next = NULL;
-		return new;
-	}
-}
-
-void printQueue(priorityQueue *q)
-{
-	node *aux;
-	for(aux = q->head; aux != NULL; aux = aux->next)
-	{
-		printf("%c|%d\n",aux->c,aux->frequency);
 	}
 }
 
@@ -112,6 +144,37 @@ void addToQueue(priorityQueue *q, int *frequency)
 	}
 }
 
+int sizeQueue(priorityQueue *q)
+{
+	int i;
+	node *aux = q->head;
+
+	for(i = 0; aux != NULL; i++)
+	{
+		aux = aux->next;
+	}
+
+	return i;
+}
+
+void createHuffmanTree(priorityQueue *q)
+{
+	if(sizeQueue(q) == 1) return;
+
+	node *child1 = q->head;
+	node *child2 = q->head->next;
+	node *new = createNode('*',child1->frequency + child2->frequency);
+
+	new->left = child1;
+	new->right = child2;
+
+	dequeue(q);
+	dequeue(q);
+	queueParent(q,new);
+
+	createHuffmanTree(q);
+}
+
 int compress(FILE *file)
 {
 	int frequency[256] = {0};
@@ -119,7 +182,13 @@ int compress(FILE *file)
 
 	getByteFrequency(file, frequency);
 	addToQueue(q,frequency);
+	createHuffmanTree(q);
+	printf("PRINT QUEUE ESTADO FINAL\n");
 	printQueue(q);
+	printf("FIM DA QUEUE\n");
+	printf("PRINT DA ARVORE ESTADO FINAL");
+	print_pre_order(q->head);
+	printf("FIM DA ARVORE\n");
 }
 
 int main()
