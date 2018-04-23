@@ -175,20 +175,37 @@ void createHuffmanTree(priorityQueue *q)
 	createHuffmanTree(q);
 }
 
+int is_child(node *t)
+{
+	if(t->right == NULL && t->left == NULL) return 1;
+	else return 0;
+}
+
+void getcodeMap(int *codeMap[][256], priorityQueue *q)
+{
+	int i = 0;
+	node *aux = q->head;
+
+}
+
 int compress(FILE *file)
 {
 	int frequency[256] = {0};
+	unsigned char codeMap[10][256]= {0};
 	priorityQueue *q  = createQueue();
 
 	getByteFrequency(file, frequency);
 	addToQueue(q,frequency);
 	createHuffmanTree(q);
+
+	//DEBUG
 	printf("PRINT QUEUE ESTADO FINAL\n");
 	printQueue(q);
 	printf("FIM DA QUEUE\n");
 	printf("PRINT DA ARVORE ESTADO FINAL");
 	print_pre_order(q->head);
 	printf("FIM DA ARVORE\n");
+	//END
 }
 
 int main()
