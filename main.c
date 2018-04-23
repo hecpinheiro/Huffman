@@ -86,15 +86,22 @@ void queue(priorityQueue *q, node *new)
 
 void dequeue(priorityQueue *q)
 {
+
+	int i;
+
 	if(is_empty(q))
 	{
 		printf("Queue is empty\n");
 	}
 	else
 	{	
-		node *new = q->head;
-		q->head = q->head->next;
-		new->next = NULL;
+		for (i = 0; i < 2; ++i)
+		{
+			node *new = q->head;
+			q->head = q->head->next;
+			new->next = NULL;
+		}
+
 	}
 }
 
@@ -148,7 +155,6 @@ void createHuffmanTree(priorityQueue *q)
 	new->right = child2;
 
 	dequeue(q);
-	dequeue(q);
 	queue(q,new);
 
 	createHuffmanTree(q);
@@ -194,6 +200,3 @@ int main()
 	compress(file);
 	fclose(file);	
 }	
-
-// o problema é quando add o pai, pois ele deve estar apontando para 2 filhos porém na implementação
-//ao criar um novo nó, zeramos p/ qm ele aponta, assim, nunca formaremos uma árvore.
